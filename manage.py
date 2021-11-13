@@ -33,11 +33,11 @@ signal.signal(signal.SIGINT, Salir)
 parser = argparse.ArgumentParser(add_help=False)
 parser.add_argument('--insert', dest='insert', nargs='?', const='Skip')
 parser.add_argument('--show', dest='show', nargs='?', const='ListAll')
-parser.add_argument('complete', nargs='?')
+parser.add_argument('secret', nargs='?')
 args = parser.parse_args()
 
 # Inicio de Programa
-key = b'4qHtGTRA9r6Vb9Y43Vi8zAjP7BFWexr-Gpm7f8-8-PE='
+key = b'0N5Oa19orlHbhArgKojvk5mk4MjqO6C2oKF1_AgPS1g='
 f = Fernet(key)
 salir = False
 
@@ -48,8 +48,8 @@ while salir == False:
 # Modo Basico
     if args.insert != "Skip" and args.insert != None:
         name = args.insert
-        passwd = getpass.getpass(" Type your password: ")
-        passwd_test = getpass.getpass(" Type your password again: ")
+        passwd = getpass.getpass(" Type your password for %s: " % name)
+        passwd_test = getpass.getpass(" Type your password again for %s: " % name)
         
         if passwd != passwd_test:
             print(" [!] Password do not match")
@@ -61,7 +61,8 @@ while salir == False:
             print(" [*] Password saved successful")
         except sqlite3.IntegrityError:
             print(" [!] The account '{}', is already registered.".format(name))
-    elif args.show != None and args.show != "ListAll":
+    
+    elif args.show != None and args.show != "ListAll" and args.secret == "666":
         name = args.show
         try:
             cursor.execute('select password from Cuentas where nombre=\"{}\"'.format(name))
@@ -74,6 +75,7 @@ while salir == False:
             print(" [!] '%s' not found in the database" % name)
             print(" [*] List all password saved with argument '--show'")
             sys.exit(0)
+    
     elif args.show == "ListAll":
         cursor.execute('select nombre from Cuentas')
         tmp = cursor.fetchall()
@@ -84,12 +86,13 @@ while salir == False:
                 print("  └──➤ %s" % var[0])
             else:
                 print("  ├──➤ %s" % var[0])
+        sys.exit(0)
 
-    elif args.complete != "complete" or args.insert == "Skip":
-        print("\nUse: --insert '<account>'       Insert into dababase. ")
+    elif args.secret == None or args.insert == "Skip":
+        print("\nUse: --insert '<account>'       Insert into database. ")
         print("     --show '<account>'         Show password.\n")
 
-    if args.complete != "complete":
+    if args.secret != "complete":
         conn.commit()
         conn.close()
         sys.exit(0)
